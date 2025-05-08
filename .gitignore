@@ -1,0 +1,12 @@
+
+# Ignore CMAKE build directory
+# CMakeLists.txt file for CMake build system
+# This file is used to configure the CMake build system for a project.
+# cmake -S . -B build && cmake --build build && build/app
+# cmake ( cmake -S . -B build -G Ninja ) # write the build files to the build directory
+# cmake ( cmake --build build ) # build the project in the build directory
+# cmake ( cmake --run build ) # run the project in the build directory
+# cmake ( cmake --debug build ) # debug the project in the build directory
+# cmake ( cmake --install build ) # install the project in the build directory
+# cmake ( cmake --test build ) # test the project in the build directory
+/build
