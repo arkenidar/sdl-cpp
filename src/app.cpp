@@ -59,6 +59,21 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         }
         } // for switch (scancode)
     } // for SDL_EVENT_KEY_DOWN
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+    {
+        SDL_Log("Mouse button %d pressed at (%g, %g)", event->button.button, event->button.x, event->button.y);
+        break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_UP:
+    {
+        SDL_Log("Mouse button %d released at (%g, %g)", event->button.button, event->button.x, event->button.y);
+        break;
+    }
+    case SDL_EVENT_MOUSE_MOTION:
+    {
+        SDL_Log("Mouse moved to (%g, %g)", event->motion.x, event->motion.y);
+        break;
+    }
     } // for switch (event->type)
     return SDL_APP_CONTINUE;
 }
