@@ -32,6 +32,28 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_SetRenderDrawColor(as->renderer, 0, 0, 0, 255);
     SDL_RenderClear(as->renderer);
 
+    {
+        // Draw the background, covering the whole window
+
+        // Set the color to a dark gray ( shared color for all lines )
+        SDL_SetRenderDrawColor(as->renderer, 50, 50, 50, 255);
+
+        int width, height;
+        SDL_GetWindowSize(as->window, &width, &height);
+        const int gridSize = 50;
+
+        // Draw the background-covering grid
+        for (int i = 0; i <= width; i += gridSize)
+        {
+            // vertical lines
+            SDL_RenderLine(as->renderer, i, 0, i, height);
+        }
+        for (int j = 0; j <= height; j += gridSize)
+        {
+            // horizontal lines
+            SDL_RenderLine(as->renderer, 0, j, width, j);
+        }
+    }
     // Draw the rectangles
     for (const auto &iteratedRectangle : rectangles)
     {
