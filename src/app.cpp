@@ -2,6 +2,7 @@
 #define SDL_MAIN_USE_CALLBACKS 1
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <vector>
 
 typedef struct
 {
@@ -10,6 +11,20 @@ typedef struct
     bool fullscreen;
 } AppState;
 
+typedef struct
+{
+    SDL_FRect rectangle;
+    SDL_Color color;
+    bool selected;
+} RectangleColored;
+
+std::vector<RectangleColored> rectangles = {
+    {{100, 100, 50, 50}, {255, 0, 0, 255}, false},
+    {{150, 150, 75, 75}, {0, 255, 0, 255}, false},
+    {{250, 250, 125, 125}, {0, 0, 255, 255}, false},
+    {{350, 350, 175, 175}, {255, 255, 0, 255}, false},
+    {{450, 450, 225, 225}, {255, 0, 255, 255}, false}};
+
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
     AppState *as = (AppState *)appstate;
@@ -17,10 +32,20 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_SetRenderDrawColor(as->renderer, 0, 0, 0, 255);
     SDL_RenderClear(as->renderer);
 
-    SDL_SetRenderDrawColor(as->renderer, 255, 0, 0, 255);
-    SDL_FRect rect = {50, 50, 200, 100};
-    SDL_RenderFillRect(as->renderer, &rect);
+    // Draw the rectangles
+    for (const auto &iteratedRectangle : rectangles)
+    {
+        const SDL_FRect &rectangle = iteratedRectangle.rectangle;
 
+        // rectangle fill
+        const SDL_Color &currentColor = iteratedRectangle.selected ? SDL_Color{255, 255, 255, 100} : iteratedRectangle.color;
+        SDL_SetRenderDrawColor(as->renderer, currentColor.r, currentColor.g, currentColor.b, currentColor.a);
+        SDL_RenderFillRect(as->renderer, &rectangle);
+
+        // rectangle outline
+        SDL_SetRenderDrawColor(as->renderer, 0, 0, 0, 255);
+        SDL_RenderRect(as->renderer, &rectangle);
+    }
     SDL_RenderPresent(as->renderer);
     return SDL_APP_CONTINUE;
 }
@@ -62,6 +87,18 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
     {
         SDL_Log("Mouse button %d pressed at (%g, %g)", event->button.button, event->button.x, event->button.y);
+        // Check if the mouse is inside any of the rectangles
+        for (auto &iteratedRectangle : rectangles)
+        {
+            const SDL_FRect &rectangle = iteratedRectangle.rectangle;
+
+            SDL_FPoint point = {event->button.x, event->button.y};
+            if (SDL_PointInRectFloat(&point, &rectangle))
+            {
+                SDL_Log("Mouse is inside rectangle at (%g, %g)", point.x, point.y);
+                iteratedRectangle.selected = !iteratedRectangle.selected;
+            }
+        }
         break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP:
@@ -105,6 +142,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     // Initially set the window fullscreen to false
     as->fullscreen = false;
+
+    SDL_SetRenderDrawBlendMode(as->renderer, SDL_BLENDMODE_BLEND);
 
     return SDL_APP_CONTINUE;
 }
